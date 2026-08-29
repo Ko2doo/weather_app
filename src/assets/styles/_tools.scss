@@ -1,0 +1,21 @@
+@use "sass:math";
+
+// px to rem
+@function rem($value) {
+  @if math.is-unitless($value) {
+    $value: $value * 1px;
+  }
+
+  @return math.div($value, 16px) * 1rem;
+}
+
+// px to em
+@function em($value, $context-font-size) {
+  @if math.is-unitless($value) {
+    $value: $value * 1px;
+  }
+  @if math.is-unitless($context-font-size) {
+    $context-font-size: $context-font-size * 1px;
+  }
+  @return math.div($value, $context-font-size) * 1em;
+}

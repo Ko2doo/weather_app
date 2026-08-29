@@ -1,0 +1,17 @@
+// Для корректной работы hover в мобилках
+@mixin media-hover($value) {
+  @media (hover: $value) {
+    & {
+      @content;
+    }
+  }
+}
+
+// Для корректной работы hover в мобилках
+@mixin media-focus($value) {
+  @media (focus: $value) {
+    & {
+      @content;
+    }
+  }
+}
