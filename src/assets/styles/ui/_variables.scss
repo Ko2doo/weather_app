@@ -1,0 +1,34 @@
+@use "@styles/tools/tools" as *;
+
+:root {
+  --root-bg-color: #343d4b;
+
+  // Font size
+  --fsize-heading: #{rem(37)};
+  --fsize-subtitle: #{rem(22)};
+
+  --fsize-xl: #{rem(28)};
+  --fsize-l: #{rem(20)};
+
+  // Borders
+  --border-radius-xl: #{rem(30)};
+  --border-radius-l: #{rem(25)};
+  --border-radius-m: #{rem(10)};
+
+  // Colors
+  --primary-color: #f7f7f7;
+  --secondary-color: #222831;
+  --addition-color: #272e37;
+
+  --w-card-bg-gradient: linear-gradient(
+    152.19deg,
+    rgba(136, 235, 239, 0.9) -0.04%,
+    rgba(83, 91, 230, 0.9) 100%
+  );
+
+  --btn-bg-gradient: linear-gradient(
+    90.8deg,
+    rgba(144, 217, 224, 0.9) 0.2%,
+    rgba(84, 96, 230, 0.9) 100%
+  );
+}

@@ -1,10 +1,48 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
+import nodePath from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = nodePath.dirname(fileURLToPath(import.meta.url));
+
+function pathsResolver(input) {
+  return nodePath.resolve(__dirname, input);
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
+  base: "", // or "./"
+  clearScreen: false,
+
+  // css options
   css: {
     devSourcemap: true,
+    preprocessorOptions: {
+      scss: {
+        api: "modern-compiler",
+      },
+    },
+  },
+
+  // build options
+  build: {
+    minify: true,
+    copyPublicDir: true,
+    outDir: "dist",
+    emptyOutDir: true,
+    cssCodeSplit: true,
+    reportCompressedSize: true,
+  },
+
+  resolve: {
+    /*prettier-ignore*/
+    alias: {
+      '@': pathsResolver('src'),
+      '@assets': pathsResolver('src/assets'),
+      '@components': pathsResolver('src/components'),
+      '@styles': pathsResolver('src/assets/styles'),
+    },
   },
 });
