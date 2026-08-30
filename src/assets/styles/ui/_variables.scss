@@ -10,6 +10,12 @@
   --fsize-xl: #{rem(28)};
   --fsize-l: #{rem(20)};
 
+  // Font weights
+  --fweight-regular: 400;
+  --fweight-medium: 500;
+  --fweight-semibold: 600;
+  --fweight-bold: 700;
+
   // Borders
   --border-radius-xl: #{rem(30)};
   --border-radius-l: #{rem(25)};
@@ -30,5 +36,11 @@
     90.8deg,
     rgba(144, 217, 224, 0.9) 0.2%,
     rgba(84, 96, 230, 0.9) 100%
+  );
+
+  --btn-bg-gradient-hover: linear-gradient(
+    256.33deg,
+    rgba(144, 217, 224, 0.9) 9.04%,
+    rgba(84, 96, 230, 0.9) 92.2%
   );
 }

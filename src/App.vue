@@ -1,17 +1,11 @@
 <script setup>
-const id = "skyblue";
-
-const message = "Hello world!";
+import Button from "@components/Button.vue";
 </script>
 
 <template>
-  <header>header</header>
+  <h1>текст</h1>
 
-  <main :data-main-id="id">
-    <h1>{{ message.toUpperCase() }}</h1>
-  </main>
-
-  <footer>{{ 10 + 20 }}</footer>
+  <Button>Сохранить</Button>
 </template>
 
 <style scoped></style>

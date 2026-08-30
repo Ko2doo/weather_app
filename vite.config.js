@@ -36,13 +36,15 @@ export default defineConfig({
     reportCompressedSize: true,
   },
 
+  // aliases
   resolve: {
     /*prettier-ignore*/
     alias: {
       '@': pathsResolver('src'),
       '@assets': pathsResolver('src/assets'),
-      '@components': pathsResolver('src/components'),
       '@styles': pathsResolver('src/assets/styles'),
+      '@icons': pathsResolver('src/assets/icons'),
+      '@components': pathsResolver('src/components'),
     },
   },
 });
