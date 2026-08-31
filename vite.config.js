@@ -14,7 +14,7 @@ function pathsResolver(input) {
 export default defineConfig({
   plugins: [vue()],
   base: "", // or "./"
-  clearScreen: false,
+  clearScreen: true,
 
   // css options
   css: {

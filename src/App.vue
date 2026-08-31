@@ -1,11 +1,22 @@
 <script setup>
-import Button from "@components/Button.vue";
+import Stat from "@components/Stat.vue";
+import CitySelect from "@components/CitySelect.vue";
+
+const myStats = [
+  { label: "Влажность", stat: "90%" },
+  { label: "Осадки", stat: "0%" },
+];
+
+function getCity(city) {
+  console.log(city);
+}
 </script>
 
 <template>
   <main class="container">
     <section class="weather-box">
-      <Button>Изменить город</Button>
+      <Stat :stats="myStats" />
+      <CitySelect @select-city="getCity" />
     </section>
   </main>
 </template>

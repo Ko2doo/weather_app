@@ -14,7 +14,9 @@
   width: fit-content;
   height: fit-content;
 
-  display: block;
+  display: flex;
+
+  gap: rem(9);
 
   font-family: "Montserrat", sans-serif;
   font-size: var(--fsize-l);
