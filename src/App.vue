@@ -1,4 +1,6 @@
 <script setup>
+import { ref } from "vue";
+
 import Stat from "@components/Stat.vue";
 import CitySelect from "@components/CitySelect.vue";
 
@@ -7,14 +9,19 @@ const myStats = [
   { label: "Осадки", stat: "0%" },
 ];
 
+let savedCity = ref("Kiev");
+
 function getCity(city) {
   console.log(city);
+  savedCity.value = city;
 }
 </script>
 
 <template>
   <main class="container">
     <section class="weather-box">
+      {{ savedCity }}
+
       <Stat :stats="myStats" />
       <CitySelect @select-city="getCity" />
     </section>
