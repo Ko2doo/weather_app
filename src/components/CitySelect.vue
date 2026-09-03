@@ -1,8 +1,15 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 import Button from "./Button.vue";
+import Input from "./Input.vue";
+
 import locationIcon from "@icons/gps.svg?raw";
+
+onMounted(() => {
+  console.log("City select mounted");
+  emit("selectCity", city.value);
+});
 
 // Emit events
 const emit = defineEmits({
@@ -12,11 +19,12 @@ const emit = defineEmits({
 });
 
 // reactive state
+let city = ref("Tashkent");
 let isEdited = ref(false);
 
 function select() {
   isEdited.value = false;
-  emit("selectCity", "London");
+  emit("selectCity", city.value);
 }
 
 function edit() {
@@ -27,11 +35,11 @@ function edit() {
 <template>
   <div class="city-select">
     <template v-if="isEdited">
-      <input class="input-element" placeholder="Введите город" type="text" />
+      <Input v-model="city" placeholder="Введите город" />
       <Button @click="select()">Сохранить</Button>
     </template>
 
-    <Button v-else @click="edit()">
+    <Button v-else class="select-button" @click="edit()">
       <span class="icon" v-html="locationIcon"></span>
       <span class="label">Изменить город</span>
     </Button>
@@ -49,22 +57,9 @@ function edit() {
   gap: rem(12);
 }
 
-.input-element {
-  font-size: rem(18);
-  font-weight: var(--fweight-regular);
-  line-height: normal;
+.select-button {
+  width: 100%;
 
-  padding: rem(15) rem(18);
-
-  color: var(--primary-color);
-  background-color: var(--addition-color);
-  border: none;
-  border-radius: var(--border-radius-m);
-
-  outline-color: var(--secondary-color);
-
-  &::placeholder {
-    color: var(--input-color);
-  }
+  justify-content: center;
 }
 </style>

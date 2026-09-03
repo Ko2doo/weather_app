@@ -4,6 +4,8 @@ import { ref } from "vue";
 import Stat from "@components/Stat.vue";
 import CitySelect from "@components/CitySelect.vue";
 
+const API_ENDPOINT = "https://api.weatherapi.com/v1";
+
 const myStats = [
   { label: "Влажность", stat: "90%" },
   { label: "Осадки", stat: "0%" },
@@ -11,17 +13,27 @@ const myStats = [
 
 let savedCity = ref("Kiev");
 
-function getCity(city) {
-  console.log(city);
-  savedCity.value = city;
+async function getCity(city) {
+  // savedCity.value = city;
+  const params = new URLSearchParams({
+    q: city,
+    lang: "ru",
+    key: "dba7b13593c6459881571045260309",
+    days: 3,
+  });
+
+  const response = await fetch(
+    `${API_ENDPOINT}/forecast.json?${params.toString()}`,
+  );
+  const data = await response.json();
+
+  console.log(data);
 }
 </script>
 
 <template>
   <main class="container">
     <section class="weather-box">
-      {{ savedCity }}
-
       <Stat :stats="myStats" />
       <CitySelect @select-city="getCity" />
     </section>
