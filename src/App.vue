@@ -46,7 +46,7 @@ async function getCity(city) {
     q: city,
     lang: "ru",
     key: "dba7b13593c6459881571045260309",
-    days: 3,
+    days: 4,
   });
 
   try {
@@ -92,7 +92,6 @@ async function getCity(city) {
         />
       </div>
 
-      <WeatherCard />
       <CitySelect @select-city="getCity" />
     </section>
   </main>
@@ -133,6 +132,7 @@ async function getCity(city) {
 
   padding: rem(55) rem(50);
   margin: 0 rem(20);
+  gap: rem(74);
 
   overflow: hidden;
 

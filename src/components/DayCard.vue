@@ -9,7 +9,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="day-card">
+  <button class="day-card">
     <img :src="icon" :alt="text" :data-condition-code="code" />
 
     <div class="wrapper">
@@ -18,7 +18,7 @@ defineProps({
       </span>
       <span class="day-card__temp">{{ Math.round(temp) }} °C</span>
     </div>
-  </div>
+  </button>
 </template>
 
 <style lang="scss" scoped>
@@ -44,6 +44,7 @@ defineProps({
 
   background-color: var(--addition-color);
   color: var(--primary-color);
+  border: none;
   border-radius: var(--border-radius-m);
 
   transition:
