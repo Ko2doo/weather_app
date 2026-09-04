@@ -19,7 +19,7 @@ const emit = defineEmits({
 });
 
 // reactive state
-let city = ref("Tashkent");
+let city = ref("Алмалык");
 let isEdited = ref(false);
 
 function select() {
@@ -35,7 +35,11 @@ function edit() {
 <template>
   <div class="city-select">
     <template v-if="isEdited">
-      <Input v-model="city" placeholder="Введите город" />
+      <Input
+        v-model="city"
+        placeholder="Введите город"
+        @keyup.enter="select()"
+      />
       <Button @click="select()">Сохранить</Button>
     </template>
 

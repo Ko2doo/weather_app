@@ -1,40 +1,98 @@
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 import Stat from "@components/Stat.vue";
+import DayCard from "./components/DayCard.vue";
 import CitySelect from "@components/CitySelect.vue";
+import Error from "@/components/Error.vue";
 
 const API_ENDPOINT = "https://api.weatherapi.com/v1";
 
-const myStats = [
-  { label: "Влажность", stat: "90%" },
-  { label: "Осадки", stat: "0%" },
-];
+const errorMap = new Map([[1006, "Указанный город не найден"]]);
 
-let savedCity = ref("Kiev");
+let data = ref();
+let error = ref();
+
+const errorDisplay = computed(() => {
+  return errorMap.get(error?.value?.error?.code);
+});
+
+const dataModified = computed(() => {
+  if (!data.value) return [];
+
+  return [
+    { label: "Влажность", stat: data.value.current.humidity + " %" },
+    { label: "Облачность", stat: data.value.current.cloud + " %" },
+    { label: "Ветер", stat: data.value.current.wind_kph + " км/ч" },
+  ];
+});
+
+const forecastDays = computed(() => {
+  if (!data.value?.forecast?.forecastday) return [];
+
+  return data.value.forecast.forecastday.map((dayItem) => ({
+    id: dayItem.date_epoch,
+    temp: dayItem.day.avgtemp_c,
+    date: new Date(dayItem.date),
+    icon: dayItem.day.condition.icon,
+    text: dayItem.day.condition.text,
+    weatherCode: dayItem.day.condition.code,
+  }));
+});
 
 async function getCity(city) {
-  // savedCity.value = city;
-  const params = new URLSearchParams({
+  const url = new URL(`${API_ENDPOINT}/forecast.json`);
+  url.search = new URLSearchParams({
     q: city,
     lang: "ru",
     key: "dba7b13593c6459881571045260309",
     days: 3,
   });
 
-  const response = await fetch(
-    `${API_ENDPOINT}/forecast.json?${params.toString()}`,
-  );
-  const data = await response.json();
+  try {
+    const response = await fetch(url);
+    const result = await response.json();
 
-  console.log(data);
+    if (!response.ok) {
+      error.value = result;
+      data.value = null;
+      return;
+    }
+
+    error.value = null;
+    data.value = result;
+    console.log(data.value);
+  } catch (err) {
+    console.error("Ошибка при загрузке погоды:", err);
+
+    error.value = {
+      message: err.message || "Не удалось установить соединение с сервером.",
+    };
+    data.value = null;
+  }
 }
 </script>
 
 <template>
   <main class="container">
     <section class="weather-box">
-      <Stat :stats="myStats" />
+      <Error :error="errorDisplay" />
+
+      <Stat :stats="dataModified" />
+
+      <div class="wrapper">
+        <DayCard
+          v-for="day in forecastDays"
+          :key="day.id"
+          :code="day.weatherCode"
+          :icon="day.icon"
+          :text="day.text"
+          :temp="day.temp"
+          :date="day.date"
+        />
+      </div>
+
+      <WeatherCard />
       <CitySelect @select-city="getCity" />
     </section>
   </main>
@@ -59,6 +117,13 @@ async function getCity(city) {
   }
 }
 
+.wrapper {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: rem(2);
+}
+
 .weather-box {
   width: 100%;
 
@@ -68,6 +133,8 @@ async function getCity(city) {
 
   padding: rem(55) rem(50);
   margin: 0 rem(20);
+
+  overflow: hidden;
 
   background-color: var(--secondary-color);
   border-radius: var(--border-radius-l);

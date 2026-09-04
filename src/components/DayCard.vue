@@ -1,0 +1,86 @@
+<script setup>
+defineProps({
+  code: Number,
+  icon: String,
+  text: String,
+  temp: Number,
+  date: Date,
+});
+</script>
+
+<template>
+  <div class="day-card">
+    <img :src="icon" :alt="text" :data-condition-code="code" />
+
+    <div class="wrapper">
+      <span class="day-card__date">
+        {{ date.toLocaleDateString("ru-RU", { weekday: "short" }) }}
+      </span>
+      <span class="day-card__temp">{{ Math.round(temp) }} °C</span>
+    </div>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+@use "@styles/tools/tools" as *;
+@use "@styles/tools/mixins" as *;
+
+.day-card {
+  max-width: rem(104);
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  text-align: center;
+
+  font-size: var(--fsize-l);
+  font-weight: var(--fweight-regular);
+  line-height: normal;
+
+  gap: rem(16);
+  padding: rem(22);
+
+  background-color: var(--addition-color);
+  color: var(--primary-color);
+  border-radius: var(--border-radius-m);
+
+  transition:
+    0.2s ease-in-out background,
+    color;
+
+  &.active {
+    background-color: var(--primary-color);
+    color: var(--addition-color);
+  }
+
+  @include media-hover(hover) {
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--day-card-hover);
+    }
+  }
+
+  @include media-hover(none) {
+    &:hover {
+      background-color: var(--day-card-hover);
+    }
+  }
+
+  &__date {
+    font-weight: var(--fweight-bold);
+  }
+
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+
+    text-align: center;
+
+    gap: rem(14);
+    margin-top: auto;
+  }
+}
+</style>
