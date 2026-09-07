@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 import Stat from "@components/Stat.vue";
 import DayCard from "@/components/DayCard.vue";
@@ -21,13 +21,21 @@ const errorDisplay = computed(() => {
   return errorMap.get(error?.value?.error?.code);
 });
 
-const dataModified = computed(() => {
-  if (!data.value) return [];
+// Stats day data
+const dataStats = computed(() => {
+  if (!data.value?.forecast?.forecastday) return [];
+
+  const rawActiveDay =
+    data.value.forecast.forecastday.find(
+      (dayItem) => dayItem.date_epoch === activeIndex.value,
+    ) || data.value.forecast.forecastday[0];
+
+  if (!rawActiveDay) return [];
 
   return [
-    { label: "Влажность", stat: data.value.current.humidity + " %" },
-    { label: "Облачность", stat: data.value.current.cloud + " %" },
-    { label: "Ветер", stat: data.value.current.wind_kph + " км/ч" },
+    { label: "Влажность", stat: `${rawActiveDay.day.avghumidity} %` },
+    { label: "УФ-индекс", stat: rawActiveDay.day.uv },
+    { label: "Ветер", stat: `${rawActiveDay.day.maxwind_kph} км/ч` },
   ];
 });
 
@@ -44,6 +52,17 @@ const forecastDays = computed(() => {
     weatherCode: dayItem.day.condition.code,
   }));
 });
+
+// Watching days data, and activate first (day) button in default
+watch(
+  forecastDays,
+  (newDays) => {
+    if (newDays.length > 0 && !activeIndex.value) {
+      activeIndex.value = newDays[0].id;
+    }
+  },
+  { immediate: true },
+);
 
 // Active day forecast data
 const activeDayData = computed(() => {
@@ -103,28 +122,35 @@ async function getCity(city) {
 
 <template>
   <main class="container">
-    <CurrentWeatherInfo v-if="activeIndex" v-bind="activeDayData" />
+    <CurrentWeatherInfo
+      v-if="activeIndex"
+      v-bind="activeDayData"
+      class="left-box"
+    />
 
     <section class="weather-box">
-      <Error :error="errorDisplay" />
+      <div class="inner-wrapper">
+        <Error :error="errorDisplay" />
 
-      <Stat :stats="dataModified" />
+        <Stat :stats="dataStats" />
 
-      <div class="wrapper">
-        <DayCard
-          v-for="day in forecastDays"
-          :key="day.id"
-          :code="day.weatherCode"
-          :icon="day.icon"
-          :text="day.text"
-          :temp="day.temp"
-          :date="day.date"
-          :is-active="activeIndex == day.id"
-          @click="() => (activeIndex = day.id)"
-        />
+        <div class="wrapper">
+          <DayCard
+            v-for="day in forecastDays"
+            :key="day.id"
+            :code="day.weatherCode"
+            :icon="day.icon"
+            :text="day.text"
+            :temp="day.temp"
+            :date="day.date"
+            :is-active="activeIndex == day.id"
+            class="card-width"
+            @click="() => (activeIndex = day.id)"
+          />
+        </div>
+
+        <CitySelect @select-city="getCity" />
       </div>
-
-      <CitySelect @select-city="getCity" />
     </section>
   </main>
 </template>
@@ -152,26 +178,47 @@ async function getCity(city) {
     flex-wrap: nowrap;
 
     padding: 0;
+    position: relative;
   }
 }
 
 .wrapper {
   display: flex;
   flex-wrap: wrap;
+}
 
-  gap: rem(2);
+.left-box {
+  @media (min-width: rem(1200)) {
+    position: absolute;
+    left: rem(-55);
+    z-index: 4;
+  }
+}
+
+.card-width {
+  width: 100%;
+
+  @media (min-width: rem(420)) {
+    width: calc(100% / 2);
+  }
+
+  @media (min-width: rem(620)) {
+    width: calc((100% / 4) - rem(2));
+
+    &:not(:first-child) {
+      margin-left: rem(2);
+    }
+  }
 }
 
 .weather-box {
   width: 100%;
 
-  flex-basis: 100%;
   display: flex;
   flex-direction: column;
 
   padding: rem(55) rem(50);
   margin: 0 var(--space-size-l);
-  gap: rem(74);
 
   overflow: hidden;
 
@@ -180,6 +227,18 @@ async function getCity(city) {
 
   @media (min-width: rem(1200)) {
     margin: 0;
+    align-items: flex-end;
+  }
+}
+
+.inner-wrapper {
+  display: flex;
+  flex-direction: column;
+
+  gap: rem(74);
+
+  @media (min-width: rem(1200)) {
+    width: rem(415);
   }
 }
 </style>

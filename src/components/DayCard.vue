@@ -29,9 +29,6 @@ defineProps({
 @use "@styles/tools/mixins" as *;
 
 .day-card {
-  max-width: rem(104);
-  width: 100%;
-
   display: flex;
   flex-direction: column;
 
