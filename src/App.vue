@@ -31,6 +31,7 @@ const dataModified = computed(() => {
   ];
 });
 
+// Get forecast data
 const forecastDays = computed(() => {
   if (!data.value?.forecast?.forecastday) return [];
 
@@ -44,6 +45,7 @@ const forecastDays = computed(() => {
   }));
 });
 
+// Active day forecast data
 const activeDayData = computed(() => {
   if (!activeIndex.value || !forecastDays.value.length) return null;
 
