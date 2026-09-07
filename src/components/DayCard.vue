@@ -1,20 +1,23 @@
 <script setup>
+import { localeDateTransform } from "@/lib/dateHelper";
+
 defineProps({
   code: Number,
   icon: String,
   text: String,
   temp: Number,
   date: Date,
+  isActive: Boolean,
 });
 </script>
 
 <template>
-  <button class="day-card">
+  <button class="day-card" :class="{ active: isActive }">
     <img :src="icon" :alt="text" :data-condition-code="code" />
 
     <div class="wrapper">
       <span class="day-card__date">
-        {{ date.toLocaleDateString("ru-RU", { weekday: "short" }) }}
+        {{ localeDateTransform(date, "short") }}
       </span>
       <span class="day-card__temp">{{ Math.round(temp) }} °C</span>
     </div>
@@ -59,13 +62,13 @@ defineProps({
   @include media-hover(hover) {
     cursor: pointer;
 
-    &:hover {
+    &:hover:not(.active) {
       background-color: var(--day-card-hover);
     }
   }
 
   @include media-hover(none) {
-    &:hover {
+    &:hover:not(.active) {
       background-color: var(--day-card-hover);
     }
   }

@@ -2,9 +2,12 @@
 import { computed, ref } from "vue";
 
 import Stat from "@components/Stat.vue";
-import DayCard from "./components/DayCard.vue";
+import DayCard from "@/components/DayCard.vue";
 import CitySelect from "@components/CitySelect.vue";
+import CurrentWeatherInfo from "@/components/CurrentWeatherInfo.vue";
 import Error from "@/components/Error.vue";
+
+import { localeDateTransform } from "@/lib/dateHelper.js";
 
 const API_ENDPOINT = "https://api.weatherapi.com/v1";
 
@@ -12,6 +15,7 @@ const errorMap = new Map([[1006, "Указанный город не найде�
 
 let data = ref();
 let error = ref();
+let activeIndex = ref(null);
 
 const errorDisplay = computed(() => {
   return errorMap.get(error?.value?.error?.code);
@@ -38,6 +42,28 @@ const forecastDays = computed(() => {
     text: dayItem.day.condition.text,
     weatherCode: dayItem.day.condition.code,
   }));
+});
+
+const activeDayData = computed(() => {
+  if (!activeIndex.value || !forecastDays.value.length) return null;
+
+  const activeDay = forecastDays.value.find(
+    (day) => day.id === activeIndex.value,
+  );
+  if (!activeDay) return null;
+
+  return {
+    datetime: activeDay.date.toISOString(),
+    currentDay: localeDateTransform(activeDay.date, "long"),
+    currentDate: localeDateTransform(activeDay.date, {
+      day: "numeric",
+      month: "long",
+    }),
+    weatherIcon: activeDay.icon,
+    currentTemp: `${Math.round(activeDay.temp)} °C`,
+    currentText: activeDay.text,
+    location: data.value?.location?.name,
+  };
 });
 
 async function getCity(city) {
@@ -75,6 +101,8 @@ async function getCity(city) {
 
 <template>
   <main class="container">
+    <CurrentWeatherInfo v-if="activeIndex" v-bind="activeDayData" />
+
     <section class="weather-box">
       <Error :error="errorDisplay" />
 
@@ -89,6 +117,8 @@ async function getCity(city) {
           :text="day.text"
           :temp="day.temp"
           :date="day.date"
+          :is-active="activeIndex == day.id"
+          @click="() => (activeIndex = day.id)"
         />
       </div>
 
@@ -109,10 +139,17 @@ async function getCity(city) {
   margin-right: auto;
 
   display: flex;
+  flex-wrap: wrap-reverse;
   place-items: center;
+
+  padding: var(--space-size-l) 0;
+  gap: var(--space-size-l);
 
   @media (min-width: rem(1200)) {
     max-width: rem(944);
+    flex-wrap: nowrap;
+
+    padding: 0;
   }
 }
 
@@ -131,7 +168,7 @@ async function getCity(city) {
   flex-direction: column;
 
   padding: rem(55) rem(50);
-  margin: 0 rem(20);
+  margin: 0 var(--space-size-l);
   gap: rem(74);
 
   overflow: hidden;
