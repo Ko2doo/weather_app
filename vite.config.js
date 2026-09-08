@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { cloudflare } from "@cloudflare/vite-plugin";
 
 import nodePath from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,7 +13,7 @@ function pathsResolver(input) {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), cloudflare()],
   base: "", // or "./"
   clearScreen: true,
 
