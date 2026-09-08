@@ -14,14 +14,13 @@ const props = defineProps({
 @use "@styles/tools/tools" as *;
 
 .error-message {
-  min-width: rem(400);
+  width: fit-content;
   height: auto;
 
-  display: block;
+  display: flex;
+  align-self: center;
 
   padding: rem(14);
-  margin-top: rem(-55);
-  margin-bottom: rem(50);
 
   background-color: var(--addition-color);
   border-bottom-left-radius: var(--border-radius-l);

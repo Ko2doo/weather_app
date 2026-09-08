@@ -1,3 +1,28 @@
 @use "@styles/ui/resets";
 @use "@styles/ui/variables";
 @use "@styles/ui/typography";
+
+.modal-window-open {
+  position: relative;
+
+  overflow-y: hidden;
+
+  &::before {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+
+    z-index: 1;
+
+    pointer-events: none;
+
+    width: 100%;
+    height: 100%;
+
+    background: rgba(12, 17, 26, 0.964);
+  }
+}

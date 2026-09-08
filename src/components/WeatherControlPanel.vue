@@ -2,9 +2,10 @@
 import { computed } from "vue";
 
 import Stat from "@components/Stat.vue";
-import DayCard from "@/components/DayCard.vue";
+import DayCard from "@components/DayCard.vue";
 import CitySelect from "@components/CitySelect.vue";
-import Error from "@/components/Error.vue";
+import Error from "@components/Error.vue";
+import { errorMap } from "@/lib/constants";
 
 const props = defineProps({
   error: Object,
@@ -40,9 +41,6 @@ const dataStats = computed(() => {
 
 const emit = defineEmits(["select-index", "select-city"]);
 
-// Errors control
-const errorMap = new Map([[1006, "Указанный город не найден"]]);
-
 const errorDisplay = computed(() => {
   return errorMap.get(props.error?.error?.code);
 });
@@ -51,7 +49,7 @@ const errorDisplay = computed(() => {
 <template>
   <section class="weather-control-panel">
     <div class="inner-wrapper">
-      <Error :error="errorDisplay" />
+      <Error :error="errorDisplay" class="error-msg" />
 
       <Stat :stats="dataStats" />
 
@@ -88,6 +86,7 @@ const errorDisplay = computed(() => {
   padding: clamp(rem(26), 4vw, rem(55)) clamp(rem(20), 4vw, rem(50));
   margin: 0 var(--space-size-l);
 
+  position: relative;
   overflow: hidden;
 
   background-color: var(--secondary-color);
@@ -108,6 +107,11 @@ const errorDisplay = computed(() => {
   @media (min-width: rem(1200)) {
     width: rem(415);
   }
+}
+
+.error-msg {
+  position: absolute;
+  top: 0;
 }
 
 .wrapper {

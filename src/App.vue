@@ -1,15 +1,45 @@
 <script setup>
-import { computed, ref, watch } from "vue";
-import CurrentWeatherInfo from "@/components/CurrentWeatherInfo.vue";
-import WeatherControlPanel from "@/components/WeatherControlPanel.vue";
+import { computed, onMounted, provide, ref, watch } from "vue";
+import CurrentWeatherInfo from "@components/CurrentWeatherInfo.vue";
+import WeatherControlPanel from "@components/WeatherControlPanel.vue";
+
+import ModalWindow from "@components/ModalWindow.vue";
+import Button from "@components/Button.vue";
 
 import { localeDateTransform } from "@/lib/dateHelper.js";
+import { setLocalStorage, getLocalStorage } from "@/lib/localeStorageUtils";
+import { cityProvide } from "@/lib/constants";
 
 const API_ENDPOINT = "https://api.weatherapi.com/v1";
+const CITY_STORAGE_KEY = "userCity";
 
 let data = ref();
 let error = ref();
 let activeIndex = ref(null);
+let detectedCity = ref();
+let isModalVisible = ref(false);
+
+// Context
+let city = ref(getLocalStorage(CITY_STORAGE_KEY) || "Алмалык");
+provide(cityProvide, city);
+
+// Watching city
+watch(city, (newCity) => {
+  getCity(newCity);
+  setLocalStorage(CITY_STORAGE_KEY, newCity);
+});
+
+// Initial query
+onMounted(() => {
+  getCity(city.value);
+});
+
+// Detect user location
+onMounted(async () => {
+  if (!getLocalStorage(CITY_STORAGE_KEY)) await detectLocationByIP();
+});
+
+console.log(detectedCity.value);
 
 // Get forecast data
 const forecastDays = computed(() => {
@@ -59,6 +89,64 @@ const activeDayData = computed(() => {
   };
 });
 
+// Get city name from ip
+async function detectLocationByIP() {
+  const endpoints = [
+    "https://ipapi.co/json/",
+    "https://ipwho.is",
+    "https://freeipapi.com/api/json/",
+  ];
+
+  for (const urlString of endpoints) {
+    try {
+      const response = await fetch(urlString);
+
+      if (!response.ok) continue;
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        console.warn(
+          `Сервис ${urlString} вернул не JSON. Пробуем следующий...`,
+        );
+        continue;
+      }
+
+      const result = await response.json();
+
+      if (result.error || result.success === false) continue;
+
+      const cityName = result.city;
+      if (!cityName) continue;
+
+      error.value = null;
+      detectedCity.value = cityName;
+      isModalVisible.value = true;
+
+      console.log(`Успешно определено через ${urlString}:`, cityName);
+
+      return;
+    } catch (err) {
+      console.error(`Ошибка запроса к ${urlString}:`, err.message);
+    }
+  }
+
+  error.value = {
+    message: "Не удалось определить город ни через один сервис.",
+  };
+  detectedCity.value = null;
+}
+
+const modalMsg = computed(() => `Вы находитесь в ${detectedCity.value}?`);
+
+function confirmDetectedCity() {
+  if (detectedCity.value) city.value = detectedCity.value;
+  isModalVisible.value = false;
+}
+
+function declineDetectedCity() {
+  isModalVisible.value = false;
+}
+
 async function getCity(city) {
   const url = new URL(`${API_ENDPOINT}/forecast.json`);
   url.search = new URLSearchParams({
@@ -94,6 +182,17 @@ async function getCity(city) {
 
 <template>
   <main class="container">
+    <ModalWindow
+      v-if="isModalVisible"
+      :visible="isModalVisible"
+      :messages="modalMsg"
+    >
+      <div class="wrapper">
+        <Button @click="confirmDetectedCity">Да</Button>
+        <Button @click="declineDetectedCity">Нет</Button>
+      </div>
+    </ModalWindow>
+
     <CurrentWeatherInfo
       v-if="activeIndex"
       v-bind="activeDayData"
@@ -124,6 +223,8 @@ async function getCity(city) {
   display: flex;
   flex-wrap: wrap;
 
+  position: relative;
+
   padding: var(--space-size-l) 0;
   gap: var(--space-size-l);
 
@@ -135,8 +236,16 @@ async function getCity(city) {
     place-items: center;
 
     padding: 0;
-    position: relative;
   }
+}
+
+.wrapper {
+  display: flex;
+  flex-wrap: wrap;
+
+  justify-content: center;
+
+  gap: rem(8);
 }
 
 .left-box {

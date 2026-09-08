@@ -17,8 +17,8 @@
   --fweight-bold: 700;
 
   // Borders
-  --border-radius-xl: #{rem(30)};
-  --border-radius-l: #{rem(25)};
+  --border-radius-xl: clamp(#{rem(15)}, 4vw, #{rem(30)});
+  --border-radius-l: clamp(#{rem(12)}, 4vw, #{rem(25)});
   --border-radius-m: #{rem(10)};
 
   // Gaps, Paddings, Margins
