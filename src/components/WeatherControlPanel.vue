@@ -79,27 +79,6 @@ const errorDisplay = computed(() => {
 @use "@styles/tools/tools" as *;
 @use "@styles/tools/mixins" as *;
 
-.wrapper {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.card-width {
-  width: 100%;
-
-  @media (min-width: rem(420)) {
-    width: calc(100% / 2);
-  }
-
-  @media (min-width: rem(620)) {
-    width: calc((100% / 4) - rem(2));
-
-    &:not(:first-child) {
-      margin-left: rem(2);
-    }
-  }
-}
-
 .weather-control-panel {
   width: 100%;
 
@@ -128,6 +107,27 @@ const errorDisplay = computed(() => {
 
   @media (min-width: rem(1200)) {
     width: rem(415);
+  }
+}
+
+.wrapper {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.card-width {
+  width: 100%;
+
+  @media (min-width: rem(420)) {
+    width: calc(100% / 2);
+  }
+
+  @media (min-width: rem(620)) {
+    width: calc((100% / 4) - rem(2));
+
+    &:not(:first-child) {
+      margin-left: rem(2);
+    }
   }
 }
 </style>
