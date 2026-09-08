@@ -10,7 +10,7 @@ import { localeDateTransform } from "@/lib/dateHelper.js";
 import { setLocalStorage, getLocalStorage } from "@/lib/localeStorageUtils";
 import { cityProvide } from "@/lib/constants";
 
-const API_ENDPOINT = "https://api.weatherapi.com/v1";
+const API_ENDPOINT = "/api";
 const CITY_STORAGE_KEY = "userCity";
 
 let data = ref();
@@ -19,14 +19,22 @@ let activeIndex = ref(null);
 let detectedCity = ref();
 let isModalVisible = ref(false);
 
+// Locales
+let locale = ref("ru");
+
 // Context
 let city = ref(getLocalStorage(CITY_STORAGE_KEY) || "Алмалык");
 provide(cityProvide, city);
 
 // Watching city
 watch(city, (newCity) => {
-  getCity(newCity);
+  getCity(newCity, locale.value);
   setLocalStorage(CITY_STORAGE_KEY, newCity);
+});
+
+// Locale watching
+watch(locale, () => {
+  if (city.value) getCity(city.value, locale.value);
 });
 
 // Initial query
@@ -38,8 +46,6 @@ onMounted(() => {
 onMounted(async () => {
   if (!getLocalStorage(CITY_STORAGE_KEY)) await detectLocationByIP();
 });
-
-console.log(detectedCity.value);
 
 // Get forecast data
 const forecastDays = computed(() => {
@@ -147,14 +153,11 @@ function declineDetectedCity() {
   isModalVisible.value = false;
 }
 
-async function getCity(city) {
-  const url = new URL(`${API_ENDPOINT}/forecast.json`);
-  url.search = new URLSearchParams({
-    q: city,
-    lang: "ru",
-    key: "dba7b13593c6459881571045260309",
-    days: 4,
-  });
+async function getCity(city, lang = locale.value) {
+  const url = new URL(`${API_ENDPOINT}/forecast`, window.location.origin);
+  url.searchParams.set("city", city);
+  url.searchParams.set("lang", lang);
+  url.searchParams.set("days", "4");
 
   try {
     const response = await fetch(url);
@@ -168,7 +171,7 @@ async function getCity(city) {
 
     error.value = null;
     data.value = result;
-    console.log(data.value);
+    // console.log(data.value);
   } catch (err) {
     console.error("Ошибка при загрузке погоды:", err);
 
