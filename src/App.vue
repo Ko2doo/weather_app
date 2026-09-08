@@ -1,43 +1,15 @@
 <script setup>
 import { computed, ref, watch } from "vue";
-
-import Stat from "@components/Stat.vue";
-import DayCard from "@/components/DayCard.vue";
-import CitySelect from "@components/CitySelect.vue";
 import CurrentWeatherInfo from "@/components/CurrentWeatherInfo.vue";
-import Error from "@/components/Error.vue";
+import WeatherControlPanel from "@/components/WeatherControlPanel.vue";
 
 import { localeDateTransform } from "@/lib/dateHelper.js";
 
 const API_ENDPOINT = "https://api.weatherapi.com/v1";
 
-const errorMap = new Map([[1006, "Указанный город не найден"]]);
-
 let data = ref();
 let error = ref();
 let activeIndex = ref(null);
-
-const errorDisplay = computed(() => {
-  return errorMap.get(error?.value?.error?.code);
-});
-
-// Stats day data
-const dataStats = computed(() => {
-  if (!data.value?.forecast?.forecastday) return [];
-
-  const rawActiveDay =
-    data.value.forecast.forecastday.find(
-      (dayItem) => dayItem.date_epoch === activeIndex.value,
-    ) || data.value.forecast.forecastday[0];
-
-  if (!rawActiveDay) return [];
-
-  return [
-    { label: "Влажность", stat: `${rawActiveDay.day.avghumidity} %` },
-    { label: "УФ-индекс", stat: rawActiveDay.day.uv },
-    { label: "Ветер", stat: `${rawActiveDay.day.maxwind_kph} км/ч` },
-  ];
-});
 
 // Get forecast data
 const forecastDays = computed(() => {
@@ -53,7 +25,7 @@ const forecastDays = computed(() => {
   }));
 });
 
-// Watching days data, and activate first (day) button in default
+// Watching days data, and activate first (day) button by default
 watch(
   forecastDays,
   (newDays) => {
@@ -128,30 +100,14 @@ async function getCity(city) {
       class="left-box"
     />
 
-    <section class="weather-box">
-      <div class="inner-wrapper">
-        <Error :error="errorDisplay" />
-
-        <Stat :stats="dataStats" />
-
-        <div class="wrapper">
-          <DayCard
-            v-for="day in forecastDays"
-            :key="day.id"
-            :code="day.weatherCode"
-            :icon="day.icon"
-            :text="day.text"
-            :temp="day.temp"
-            :date="day.date"
-            :is-active="activeIndex == day.id"
-            class="card-width"
-            @click="() => (activeIndex = day.id)"
-          />
-        </div>
-
-        <CitySelect @select-city="getCity" />
-      </div>
-    </section>
+    <WeatherControlPanel
+      :data
+      :error
+      :active-index="activeIndex"
+      :forecast-days="forecastDays"
+      @select-index="(index) => (activeIndex = index)"
+      @select-city="getCity"
+    />
   </main>
 </template>
 
@@ -161,30 +117,26 @@ async function getCity(city) {
 
 .container {
   width: 100%;
-  min-height: 100dvh;
 
   margin-left: auto;
   margin-right: auto;
 
   display: flex;
-  flex-wrap: wrap-reverse;
-  place-items: center;
+  flex-wrap: wrap;
 
   padding: var(--space-size-l) 0;
   gap: var(--space-size-l);
 
   @media (min-width: rem(1200)) {
     max-width: rem(944);
+    min-height: 100dvh;
+
     flex-wrap: nowrap;
+    place-items: center;
 
     padding: 0;
     position: relative;
   }
-}
-
-.wrapper {
-  display: flex;
-  flex-wrap: wrap;
 }
 
 .left-box {
@@ -192,53 +144,6 @@ async function getCity(city) {
     position: absolute;
     left: rem(-55);
     z-index: 4;
-  }
-}
-
-.card-width {
-  width: 100%;
-
-  @media (min-width: rem(420)) {
-    width: calc(100% / 2);
-  }
-
-  @media (min-width: rem(620)) {
-    width: calc((100% / 4) - rem(2));
-
-    &:not(:first-child) {
-      margin-left: rem(2);
-    }
-  }
-}
-
-.weather-box {
-  width: 100%;
-
-  display: flex;
-  flex-direction: column;
-
-  padding: rem(55) rem(50);
-  margin: 0 var(--space-size-l);
-
-  overflow: hidden;
-
-  background-color: var(--secondary-color);
-  border-radius: var(--border-radius-l);
-
-  @media (min-width: rem(1200)) {
-    margin: 0;
-    align-items: flex-end;
-  }
-}
-
-.inner-wrapper {
-  display: flex;
-  flex-direction: column;
-
-  gap: rem(74);
-
-  @media (min-width: rem(1200)) {
-    width: rem(415);
   }
 }
 </style>

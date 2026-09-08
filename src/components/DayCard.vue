@@ -40,7 +40,7 @@ defineProps({
   line-height: normal;
 
   gap: rem(16);
-  padding: rem(22);
+  padding: clamp(rem(11), 4vw, rem(22));
 
   background-color: var(--addition-color);
   color: var(--primary-color);

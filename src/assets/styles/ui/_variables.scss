@@ -4,11 +4,11 @@
   --root-bg-color: #343d4b;
 
   // Font size
-  --fsize-heading: #{rem(37)};
-  --fsize-subtitle: #{rem(22)};
+  --fsize-heading: clamp(#{rem(28)}, 4vw, #{rem(37)});
+  --fsize-subtitle: clamp(#{rem(18)}, 4vw, #{rem(22)});
 
-  --fsize-xl: #{rem(28)};
-  --fsize-l: #{rem(20)};
+  --fsize-xl: clamp(#{rem(24)}, 4vw, #{rem(28)});
+  --fsize-l: clamp(#{rem(18)}, 4vw, #{rem(20)});
 
   // Font weights
   --fweight-regular: 400;
@@ -22,7 +22,7 @@
   --border-radius-m: #{rem(10)};
 
   // Gaps, Paddings, Margins
-  --space-size-l: #{rem(20)};
+  --space-size-l: clamp(#{rem(10)}, 4vw, #{rem(20)});
 
   // Colors
   --primary-color: #f7f7f7;
