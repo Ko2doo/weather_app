@@ -41,7 +41,7 @@ onUnmounted(() => {
   left: 0;
   right: 0;
 
-  z-index: 6;
+  z-index: 22;
 
   width: 44.4444%;
 
