@@ -7,5 +7,5 @@ export function localeDateTransform(el, options = {}, locale = "ru-RU") {
 
   const finalOptions =
     typeof options === "string" ? { weekday: options } : options;
-  return dateObj.toLocaleDateString(locale, finalOptions);
+  return dateObj.toLocaleString(locale, finalOptions);
 }

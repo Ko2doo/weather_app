@@ -17,9 +17,59 @@ export default {
       return handleForecast(request, env);
     }
 
+    // Added IP Lookup api
+    if (url.pathname === "/api/ip-lookup") {
+      return handleIpLookup(request, env);
+    }
+
     return env.ASSETS.fetch(request);
   },
 };
+
+async function handleIpLookup(request, env) {
+  const origin =
+    request.headers.get("origin") || request.headers.get("referer");
+  const isAllowedOrigin = origin
+    ? [...ALLOWED_ORIGINS].some((allowed) => origin.startsWith(allowed))
+    : false;
+
+  if (!isAllowedOrigin) {
+    return new Response(JSON.stringify({ message: "Forbidden" }), {
+      status: 403,
+      headers: { "content-type": "application/json" },
+    });
+  }
+
+  // Real user IP
+  const rawIp = request.headers.get("cf-connecting-ip");
+  const isLoopback = rawIp === "127.0.0.1" || rawIp === "::1";
+  const clientIp = !rawIp || isLoopback ? env.DEV_TEST_IP : rawIp;
+
+  console.log("CF-Connecting-IP (dev):", clientIp);
+
+  if (!clientIp) {
+    return new Response(
+      JSON.stringify({
+        message: "Не удалось определить IP клиента",
+      }),
+      { message: 400, headers: { "content-type": "application/json" } },
+    );
+  }
+
+  const apiUrl = new URL("https://api.weatherapi.com/v1/ip.json");
+  apiUrl.search = new URLSearchParams({
+    q: clientIp,
+    key: env.WEATHER_API_KEY,
+  });
+
+  const upstreamResponse = await fetch(apiUrl);
+  const result = await upstreamResponse.json();
+
+  return new Response(JSON.stringify(result), {
+    status: upstreamResponse.status,
+    headers: { "content-type": "application/json" },
+  });
+}
 
 async function handleForecast(request, env) {
   const origin =

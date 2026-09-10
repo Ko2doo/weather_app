@@ -9,6 +9,8 @@
 
   --fsize-xl: clamp(#{rem(24)}, 4vw, #{rem(28)});
   --fsize-l: clamp(#{rem(18)}, 4vw, #{rem(20)});
+  --fsize-m: clamp(#{rem(14)}, 4vw, #{rem(16)});
+  --fsize-s: #{rem(13)};
 
   // Font weights
   --fweight-regular: 400;

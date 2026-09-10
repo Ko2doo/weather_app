@@ -5,7 +5,10 @@ defineProps({
   datetime: String,
   currentDay: String,
   currentDate: String,
-  location: String,
+  location: {
+    type: Object,
+    required: false,
+  },
   weatherIcon: String,
   currentTemp: String,
   currentText: String,
@@ -19,7 +22,7 @@ defineProps({
       <p class="current-date">{{ currentDate }}</p>
       <p class="current-location">
         <span class="icon" v-html="locationIcon"></span>
-        {{ location }}
+        {{ location.country }} / {{ location.name }}
       </p>
     </time>
 
@@ -95,8 +98,7 @@ defineProps({
 }
 
 .current-location {
-  font-size: var(--fsize-l);
-  font-weight: var(--fweight-semibold);
+  font-size: var(--fsize-m);
   line-height: normal;
 
   display: block;
@@ -108,6 +110,11 @@ defineProps({
     margin-right: rem(8);
 
     object-fit: cover;
+  }
+
+  @media (min-width: rem(430)) {
+    font-size: var(--fsize-l);
+    font-weight: var(--fweight-semibold);
   }
 }
 

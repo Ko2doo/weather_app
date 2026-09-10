@@ -19,7 +19,7 @@
   gap: rem(9);
 
   font-family: "Montserrat", sans-serif;
-  font-size: var(--fsize-l);
+  font-size: var(--fsize-m);
   font-weight: var(--fweight-semibold);
   text-align: center;
 

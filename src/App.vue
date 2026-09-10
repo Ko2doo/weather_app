@@ -2,12 +2,15 @@
 import { computed, onMounted, provide, ref, watch } from "vue";
 import CurrentWeatherInfo from "@components/CurrentWeatherInfo.vue";
 import WeatherControlPanel from "@components/WeatherControlPanel.vue";
+import WeatherHourly from "@components/WeatherHourly.vue";
+import Footer from "@components/Footer.vue";
 
 import ModalWindow from "@components/ModalWindow.vue";
 import Button from "@components/Button.vue";
 
 import { localeDateTransform } from "@/lib/dateHelper.js";
 import { setLocalStorage, getLocalStorage } from "@/lib/localeStorageUtils";
+import { sanitizeCityName } from "@/lib/sanitizeCityName";
 import { cityProvide } from "@/lib/constants";
 
 const API_ENDPOINT = "/api";
@@ -50,6 +53,7 @@ onMounted(async () => {
 // Get forecast data
 const forecastDays = computed(() => {
   if (!data.value?.forecast?.forecastday) return [];
+  console.log(data.value);
 
   return data.value.forecast.forecastday.map((dayItem) => ({
     id: dayItem.date_epoch,
@@ -58,6 +62,7 @@ const forecastDays = computed(() => {
     icon: dayItem.day.condition.icon,
     text: dayItem.day.condition.text,
     weatherCode: dayItem.day.condition.code,
+    hourly: dayItem.hour,
   }));
 });
 
@@ -91,55 +96,50 @@ const activeDayData = computed(() => {
     weatherIcon: activeDay.icon,
     currentTemp: `${Math.round(activeDay.temp)} °C`,
     currentText: activeDay.text,
-    location: data.value?.location?.name,
+    location: {
+      country: data.value?.location?.country,
+      region: data.value?.location?.region,
+      name: data.value?.location?.name,
+    },
   };
+});
+
+const activeDayHourly = computed(() => {
+  if (!activeIndex.value || !forecastDays.value.length) return null;
+
+  const activeDay = forecastDays.value.find(
+    (day) => day.id === activeIndex.value,
+  );
+
+  return activeDay?.hourly ?? [];
 });
 
 // Get city name from ip
 async function detectLocationByIP() {
-  const endpoints = [
-    "https://ipapi.co/json/",
-    "https://ipwho.is",
-    "https://freeipapi.com/api/json/",
-  ];
+  try {
+    const response = await fetch("/api/ip-lookup");
 
-  for (const urlString of endpoints) {
-    try {
-      const response = await fetch(urlString);
-
-      if (!response.ok) continue;
-
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        console.warn(
-          `Сервис ${urlString} вернул не JSON. Пробуем следующий...`,
-        );
-        continue;
-      }
-
-      const result = await response.json();
-
-      if (result.error || result.success === false) continue;
-
-      const cityName = result.city;
-      if (!cityName) continue;
-
-      error.value = null;
-      detectedCity.value = cityName;
-      isModalVisible.value = true;
-
-      console.log(`Успешно определено через ${urlString}:`, cityName);
-
-      return;
-    } catch (err) {
-      console.error(`Ошибка запроса к ${urlString}:`, err.message);
+    if (!response.ok) {
+      throw new Error("Сервис определения города недоступен");
     }
-  }
 
-  error.value = {
-    message: "Не удалось определить город ни через один сервис.",
-  };
-  detectedCity.value = null;
+    const result = await response.json();
+    const cityName = result.city ? sanitizeCityName(result.city) : null;
+
+    if (!cityName) {
+      throw new Error("Не удалось определить город по IP");
+    }
+
+    error.value = null;
+    detectedCity.value = cityName;
+    isModalVisible.value = true;
+  } catch (err) {
+    console.error("Ошибка определения местоположения:", err.message);
+    error.value = {
+      message: "Не удалось определить город по IP.",
+    };
+    detectedCity.value = null;
+  }
 }
 
 const modalMsg = computed(() => `Вы находитесь в ${detectedCity.value}?`);
@@ -157,7 +157,7 @@ async function getCity(city, lang = locale.value) {
   const url = new URL(`${API_ENDPOINT}/forecast`, window.location.origin);
   url.searchParams.set("city", city);
   url.searchParams.set("lang", lang);
-  url.searchParams.set("days", "4");
+  url.searchParams.set("days", "3");
 
   try {
     const response = await fetch(url);
@@ -210,7 +210,11 @@ async function getCity(city, lang = locale.value) {
       @select-index="(index) => (activeIndex = index)"
       @select-city="getCity"
     />
+
+    <WeatherHourly v-if="activeIndex" :hourly="activeDayHourly" />
   </main>
+
+  <Footer />
 </template>
 
 <style lang="scss" scoped>
@@ -232,13 +236,12 @@ async function getCity(city, lang = locale.value) {
   gap: var(--space-size-l);
 
   @media (min-width: rem(1200)) {
-    max-width: rem(944);
-    min-height: 100dvh;
+    max-width: rem(980);
 
-    flex-wrap: nowrap;
     place-items: center;
 
-    padding: 0;
+    // padding: 0;
+    margin-top: var(--space-size-l);
   }
 }
 
@@ -255,6 +258,7 @@ async function getCity(city, lang = locale.value) {
   @media (min-width: rem(1200)) {
     position: absolute;
     left: rem(-55);
+    top: 0;
     z-index: 4;
   }
 }

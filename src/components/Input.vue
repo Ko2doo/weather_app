@@ -13,7 +13,7 @@ const data = defineModel({
 @use "@styles/tools/tools" as *;
 
 .input-element {
-  width: rem(260);
+  max-width: rem(210);
 
   font-size: rem(18);
   font-weight: var(--fweight-regular);

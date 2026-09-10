@@ -1,3 +1,5 @@
+@use "./tools" as *;
+
 // Для корректной работы hover в мобилках
 @mixin media-hover($value) {
   @media (hover: $value) {
@@ -12,6 +14,27 @@
   @media (focus: $value) {
     & {
       @content;
+    }
+  }
+}
+
+@mixin weather-widget-default() {
+  & {
+    width: 100%;
+
+    display: flex;
+
+    padding: clamp(rem(26), 4vw, rem(55)) clamp(rem(20), 4vw, rem(50));
+    margin: 0 var(--space-size-l);
+
+    position: relative;
+
+    background-color: var(--secondary-color);
+    border-radius: var(--border-radius-l);
+
+    @media (min-width: rem(1200)) {
+      margin: 0;
+      align-items: flex-end;
     }
   }
 }

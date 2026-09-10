@@ -71,6 +71,8 @@ onUnmounted(() => {
   display: flex;
   flex-wrap: wrap;
 
+  align-items: baseline;
+
   gap: rem(12);
 }
 

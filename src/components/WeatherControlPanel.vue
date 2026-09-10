@@ -78,23 +78,11 @@ const errorDisplay = computed(() => {
 @use "@styles/tools/mixins" as *;
 
 .weather-control-panel {
-  width: 100%;
+  @include weather-widget-default;
 
-  display: flex;
-  flex-direction: column;
-
-  padding: clamp(rem(26), 4vw, rem(55)) clamp(rem(20), 4vw, rem(50));
-  margin: 0 var(--space-size-l);
-
-  position: relative;
-  overflow: hidden;
-
-  background-color: var(--secondary-color);
-  border-radius: var(--border-radius-l);
-
-  @media (min-width: rem(1200)) {
-    margin: 0;
-    align-items: flex-end;
+  & {
+    flex-direction: column;
+    overflow: hidden;
   }
 }
 
@@ -105,7 +93,7 @@ const errorDisplay = computed(() => {
   gap: rem(74);
 
   @media (min-width: rem(1200)) {
-    width: rem(415);
+    width: rem(450);
   }
 }
 
@@ -117,21 +105,23 @@ const errorDisplay = computed(() => {
 .wrapper {
   display: flex;
   flex-wrap: wrap;
+
+  justify-content: center;
 }
 
 .card-width {
-  width: 100%;
-
-  @media (min-width: rem(420)) {
-    width: calc(100% / 2);
-  }
+  width: calc(100% / 3);
 
   @media (min-width: rem(620)) {
-    width: calc((100% / 4) - rem(2));
+    width: calc((100% / 6) - rem(2));
 
     &:not(:first-child) {
       margin-left: rem(2);
     }
+  }
+
+  @media (min-width: rem(620)) {
+    width: calc((100% / 4) - rem(2));
   }
 }
 </style>

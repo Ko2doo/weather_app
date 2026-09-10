@@ -8,7 +8,7 @@
 * {
   font-size: 100%;
 
-  word-break: break-word;
+  // word-break: break-word;
   box-sizing: border-box;
 }
 
@@ -19,6 +19,7 @@ body {
 }
 
 body {
+  scroll-behavior: smooth;
   background-color: var(--root-bg-color);
   color: var(--primary-color);
 }

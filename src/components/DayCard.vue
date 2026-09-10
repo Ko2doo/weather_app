@@ -35,7 +35,7 @@ defineProps({
   align-items: center;
   text-align: center;
 
-  font-size: var(--fsize-l);
+  font-size: var(--fsize-m);
   font-weight: var(--fweight-regular);
   line-height: normal;
 
@@ -68,6 +68,10 @@ defineProps({
     &:hover:not(.active) {
       background-color: var(--day-card-hover);
     }
+  }
+
+  @media (min-width: rem(480)) {
+    font-size: var(--fsize-l);
   }
 
   &__date {

@@ -31,7 +31,7 @@ defineProps({
     justify-content: space-between;
     align-items: center;
 
-    font-size: var(--fsize-xl);
+    font-size: var(--fsize-m);
     font-weight: var(--fweight-bold);
 
     .label {
@@ -44,6 +44,10 @@ defineProps({
 
     &:not(:last-child) {
       margin-block-end: rem(16);
+    }
+
+    @media (min-width: rem(480)) {
+      font-size: var(--fsize-xl);
     }
   }
 }
