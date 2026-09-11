@@ -196,22 +196,24 @@ async function getCity(city, lang = locale.value) {
       </div>
     </ModalWindow>
 
-    <CurrentWeatherInfo
-      v-if="activeIndex"
-      v-bind="activeDayData"
-      class="left-box"
-    />
+    <template v-if="data && !isModalVisible">
+      <CurrentWeatherInfo
+        v-if="activeIndex"
+        v-bind="activeDayData"
+        class="left-box"
+      />
 
-    <WeatherControlPanel
-      :data
-      :error
-      :active-index="activeIndex"
-      :forecast-days="forecastDays"
-      @select-index="(index) => (activeIndex = index)"
-      @select-city="getCity"
-    />
+      <WeatherControlPanel
+        :data
+        :error
+        :active-index="activeIndex"
+        :forecast-days="forecastDays"
+        @select-index="(index) => (activeIndex = index)"
+        @select-city="getCity"
+      />
 
-    <WeatherHourly v-if="activeIndex" :hourly="activeDayHourly" />
+      <WeatherHourly v-if="activeIndex" :hourly="activeDayHourly" />
+    </template>
   </main>
 
   <Footer />
@@ -229,6 +231,7 @@ async function getCity(city, lang = locale.value) {
 
   display: flex;
   flex-wrap: wrap;
+  flex: 1 0 auto;
 
   position: relative;
 
@@ -238,9 +241,6 @@ async function getCity(city, lang = locale.value) {
   @media (min-width: rem(1200)) {
     max-width: rem(980);
 
-    place-items: center;
-
-    // padding: 0;
     margin-top: var(--space-size-l);
   }
 }
