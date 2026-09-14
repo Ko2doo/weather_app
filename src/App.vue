@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, provide, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, provide, ref, watch } from "vue";
 import CurrentWeatherInfo from "@components/CurrentWeatherInfo.vue";
 import WeatherControlPanel from "@components/WeatherControlPanel.vue";
 import WeatherHourly from "@components/WeatherHourly.vue";
@@ -11,16 +11,22 @@ import Button from "@components/Button.vue";
 import { localeDateTransform } from "@/lib/dateHelper.js";
 import { setLocalStorage, getLocalStorage } from "@/lib/localeStorageUtils";
 import { sanitizeCityName } from "@/lib/sanitizeCityName";
-import { cityProvide } from "@/lib/constants";
-
-const API_ENDPOINT = "/api";
-const CITY_STORAGE_KEY = "userCity";
+import { getCityPhoto } from "@/lib/wikipediaCityPhoto";
+import {
+  API_FORECAST,
+  API_IPLOOKUP,
+  CITY_STORAGE_KEY,
+  cityProvide,
+} from "@/lib/constants";
 
 let data = ref();
 let error = ref();
 let activeIndex = ref(null);
 let detectedCity = ref();
 let isModalVisible = ref(false);
+let now = ref(Date.now());
+let cityPhoto = ref(null);
+let timer;
 
 // Locales
 let locale = ref("ru");
@@ -34,6 +40,15 @@ watch(city, (newCity) => {
   getCity(newCity, locale.value);
   setLocalStorage(CITY_STORAGE_KEY, newCity);
 });
+
+// City photo watching
+watch(
+  city,
+  async (newCity) => {
+    cityPhoto.value = await getCityPhoto(newCity, locale.value);
+  },
+  { immediate: true },
+);
 
 // Locale watching
 watch(locale, () => {
@@ -49,6 +64,15 @@ onMounted(() => {
 onMounted(async () => {
   if (!getLocalStorage(CITY_STORAGE_KEY)) await detectLocationByIP();
 });
+
+// Time
+onMounted(() => {
+  timer = setInterval(() => {
+    now.value = Date.now();
+  }, 60_000);
+});
+
+onUnmounted(() => clearInterval(timer));
 
 // Get forecast data
 const forecastDays = computed(() => {
@@ -111,13 +135,17 @@ const activeDayHourly = computed(() => {
     (day) => day.id === activeIndex.value,
   );
 
-  return activeDay?.hourly ?? [];
+  if (!activeDay?.hourly) return [];
+
+  const currentHourEpoch = Math.floor(now.value / 1000 / 3600) * 3600;
+
+  return activeDay.hourly.filter((hour) => hour.time_epoch >= currentHourEpoch);
 });
 
 // Get city name from ip
 async function detectLocationByIP() {
   try {
-    const response = await fetch("/api/ip-lookup");
+    const response = await fetch(API_IPLOOKUP);
 
     if (!response.ok) {
       throw new Error("Сервис определения города недоступен");
@@ -154,7 +182,7 @@ function declineDetectedCity() {
 }
 
 async function getCity(city, lang = locale.value) {
-  const url = new URL(`${API_ENDPOINT}/forecast`, window.location.origin);
+  const url = new URL(API_FORECAST, window.location.origin);
   url.searchParams.set("city", city);
   url.searchParams.set("lang", lang);
   url.searchParams.set("days", "3");
@@ -196,10 +224,11 @@ async function getCity(city, lang = locale.value) {
       </div>
     </ModalWindow>
 
-    <template v-if="data && !isModalVisible">
+    <template v-if="!isModalVisible">
       <CurrentWeatherInfo
         v-if="activeIndex"
         v-bind="activeDayData"
+        :bg-image="cityPhoto"
         class="left-box"
       />
 
