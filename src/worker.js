@@ -1,5 +1,5 @@
-const SUPPORTED_LANG = new Set(["ru", "en", "uz"]);
-const DEFAULT_LANG = "en";
+// const SUPPORTED_LANG = new Set(["ru", "en", "uz"]);
+// const DEFAULT_LANG = "en";
 
 // eslint-disable-next-line no-useless-escape
 const CITY_PATTERN = /^[\p{L}\s\-]{1,60}$/u;
@@ -88,7 +88,7 @@ async function handleForecast(request, env) {
   const requestURL = new URL(request.url);
   const city = requestURL.searchParams.get("city");
   const days = requestURL.searchParams.get("days");
-  const requestedLang = requestURL.searchParams.get("lang");
+  const lang = requestURL.searchParams.get("lang");
 
   if (!city || !CITY_PATTERN.test(city)) {
     return new Response(
@@ -97,7 +97,7 @@ async function handleForecast(request, env) {
     );
   }
 
-  const lang = SUPPORTED_LANG.has(requestedLang) ? requestedLang : DEFAULT_LANG;
+  // const lang = SUPPORTED_LANG.has(requestedLang) ? requestedLang : DEFAULT_LANG;
 
   const apiUrl = new URL("https://api.weatherapi.com/v1/forecast.json");
   apiUrl.search = new URLSearchParams({
